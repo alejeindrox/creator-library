@@ -23,3 +23,8 @@ export const getSessionUser = async () => {
   const user = await userRepository.findById(userId);
   return user;
 };
+
+export const clearSessionCookie = async () => {
+  const cookieStore = await cookies();
+  cookieStore.delete('session');
+};

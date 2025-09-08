@@ -1,12 +1,19 @@
-import type { FC } from 'react';
+import { getLibraryAssets } from './actions';
+import { LibraryHeader } from './components/LibraryHeader';
+import { EmptyLibrary } from './components/EmptyLibrary';
+import { AssetGrid } from './components/AssetGrid';
 
-const LibraryPage: FC = () => {
+export default async function LibraryPage() {
+  const assets = await getLibraryAssets();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-      <h1 className="mb-2 text-center text-4xl font-bold text-slate-900">Library</h1>
+    <div className="min-h-screen bg-slate-50">
+      <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+        <LibraryHeader />
+        <main>
+          {assets.length === 0 ? <EmptyLibrary /> : <AssetGrid assets={assets} />}
+        </main>
+      </div>
     </div>
   );
-};
-
-export default LibraryPage;
+}
