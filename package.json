@@ -13,7 +13,7 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:generate:vercel": "prisma generate --schema prisma/schema.vercel.prisma",
     "db:migrate:vercel": "prisma migrate deploy --schema prisma/schema.vercel.prisma",
-    "postinstall": "npm run db:generate:local",
+    "postinstall": "npm run db:generate:vercel",
     "postbuild": "npm run db:migrate:vercel && npm run db:generate:vercel && npm run db:seed"
   },
   "dependencies": {
