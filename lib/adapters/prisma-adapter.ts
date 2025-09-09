@@ -75,6 +75,13 @@ export class PrismaAssetRepository implements IAssetRepository {
     });
     return favorite as Favorite | null;
   }
+
+  async findAllFavoritesForUser(userId: string): Promise<Favorite[]> {
+    const favorites = await prisma.favorite.findMany({
+      where: { userId },
+    });
+    return favorites as Favorite[];
+  }
 }
 
 export const userRepository = new PrismaUserRepository();

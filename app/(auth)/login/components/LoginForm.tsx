@@ -3,12 +3,7 @@
 import type { FC } from 'react';
 
 import { SubmitButton } from './SubmitButton';
-import type { LoginState } from '../types';
-
-type LoginFormProps = {
-  action: (payload: FormData) => void;
-  state: LoginState;
-};
+import type { LoginFormProps } from '../types';
 
 export const LoginForm: FC<LoginFormProps> = ({ action, state }) => (
   <form action={action} className="flex flex-col gap-6">

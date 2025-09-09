@@ -12,6 +12,7 @@
     "db:seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/seed.ts"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@prisma/client": "^6.15.0",
     "next": "15.5.2",
     "react": "19.1.0",

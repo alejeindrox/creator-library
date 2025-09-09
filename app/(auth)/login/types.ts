@@ -4,3 +4,8 @@ export type LoginState = {
   };
   message?: string | null;
 };
+
+export type LoginFormProps = {
+  action: (payload: FormData) => void;
+  state: LoginState;
+};

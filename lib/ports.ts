@@ -12,4 +12,5 @@ export interface IAssetRepository {
   findAllForUser(userId: string): Promise<Asset[]>;
   toggleFavorite(data: CreateFavoriteData): Promise<Favorite | null>;
   findFavorite(userId: string, assetId: string): Promise<Favorite | null>;
+  findAllFavoritesForUser(userId: string): Promise<Favorite[]>;
 }
