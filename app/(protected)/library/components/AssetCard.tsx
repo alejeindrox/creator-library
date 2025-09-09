@@ -6,11 +6,8 @@ import Image from 'next/image';
 import { HeartIcon } from '@heroicons/react/24/solid';
 
 import { toggleFavoriteAction } from '../actions';
-import type { AssetWithFavorite } from '../actions';
+import type { AssetCardProps } from '../types';
 
-type AssetCardProps = {
-  asset: AssetWithFavorite;
-};
 
 export const AssetCard: FC<AssetCardProps> = ({ asset }) => {
   const [optimisticFavorite, toggleOptimisticFavorite] = useOptimistic(

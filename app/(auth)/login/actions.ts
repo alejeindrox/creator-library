@@ -1,15 +1,11 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { z } from 'zod';
 
 import { setSessionCookie } from '@/lib/auth.server';
 import { userRepository } from '@/lib/adapters/prisma-adapter';
+import { LoginSchema } from '@/lib/schemas/login-schema';
 import type { LoginState } from './types';
-
-const LoginSchema = z.object({
-  email: z.string().email({ message: 'Please, enter a valid email.' }),
-});
 
 export const login = async (prevState: LoginState, formData: FormData): Promise<LoginState> => {
   const validatedFields = LoginSchema.safeParse({

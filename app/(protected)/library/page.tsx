@@ -2,6 +2,7 @@ import { getLibraryAssets } from './actions';
 import { LibraryHeader } from './components/LibraryHeader';
 import { EmptyLibrary } from './components/EmptyLibrary';
 import { AssetGrid } from './components/AssetGrid';
+import { CreateAssetButton } from './components/CreateAssetButton';
 
 export default async function LibraryPage() {
   const assets = await getLibraryAssets();
@@ -14,6 +15,7 @@ export default async function LibraryPage() {
           {assets.length === 0 ? <EmptyLibrary /> : <AssetGrid assets={assets} />}
         </main>
       </div>
+      <CreateAssetButton />
     </div>
   );
 }
