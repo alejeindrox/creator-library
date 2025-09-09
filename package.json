@@ -7,9 +7,14 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
+    "format:code": "npx prettier . --write",
     "db:migrate": "prisma migrate dev --name init --schema prisma/schema.prisma",
     "db:generate": "prisma generate --schema prisma/schema.prisma",
-    "db:seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/seed.ts"
+    "db:seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/seed.ts",
+    "postbuild": "npx prisma migrate deploy && npx prisma db seed"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/seed.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
