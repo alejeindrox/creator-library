@@ -15,7 +15,7 @@
     "postbuild": "npx prisma migrate deploy && npx prisma db seed"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/seed.ts"
+    "seed": "ts-node scripts/seed.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
