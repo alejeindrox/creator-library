@@ -15,7 +15,7 @@ Este proyecto es una aplicación web para gestionar una biblioteca de activos di
 
 ### Demo y Recursos Adicionales
 
-  * **Ver la demo:** Puedes ver la aplicación en vivo en []().
+  * **Ver la demo:** Puedes ver la aplicación en vivo en [Demo]().
   * **Video del proyecto:** Un breve recorrido por la aplicación está disponible en [Video Jam](https://jam.dev/c/ef4772b8-dafe-4ea9-973c-dcaf0261c709).
   * **Seguimiento de features:** El estado de las funcionalidades del proyecto (activos, en desarrollo, o deprecadas) se puede seguir en [Historial de Features](https://www.notion.so/vibepeak-26957f00378f80bb9366fe0a7b665330?source=copy_link).
 
@@ -37,7 +37,15 @@ yarn install
 pnpm install
 ```
 
-### 2\. Configuración y migración de la base de datos
+### 2\. Configuración del entorno
+
+Antes de instalar las dependencias, copia el archivo de ejemplo de las variables de entorno para que tu aplicación pueda acceder a las configuraciones necesarias, como la URL de la base de datos.
+
+```bash
+cp .env.example .env
+```
+
+### 3\. Configuración y migración de la base de datos
 
 El proyecto utiliza **Prisma** con **SQLite**. Para configurar la base de datos y agregar algunos datos iniciales, ejecuta los siguientes scripts:
 
@@ -48,7 +56,7 @@ npm run db:seed
 
 El primer comando migra el esquema de la base de datos, y el segundo la puebla con usuarios de prueba y algunos assets de ejemplo.
 
-### 3\. Iniciar el servidor de desarrollo
+### 4\. Iniciar el servidor de desarrollo
 
 Ya estás listo para correr la aplicación.
 
