@@ -38,7 +38,7 @@ export const PricingCard: FC<PricingCardProps> = ({ title, price, features, isCu
         disabled={isCurrent || isLoading}
         onClick={() => handleSelectPlan(title)}
       >
-        {isLoading ? 'Updating...' : (isCurrent ? 'Current Plan' : 'Select Plan')}
+        {isLoading ? 'Updating...' : isCurrent ? 'Current Plan' : 'Select Plan'}
       </button>
     </div>
   );

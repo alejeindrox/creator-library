@@ -8,12 +8,8 @@ import { HeartIcon } from '@heroicons/react/24/solid';
 import { toggleFavoriteAction } from '../actions';
 import type { AssetCardProps } from '../types';
 
-
 export const AssetCard: FC<AssetCardProps> = ({ asset }) => {
-  const [optimisticFavorite, toggleOptimisticFavorite] = useOptimistic(
-    asset.isFavorite,
-    (state) => !state
-  );
+  const [optimisticFavorite, toggleOptimisticFavorite] = useOptimistic(asset.isFavorite, (state) => !state);
 
   return (
     <div className="group relative overflow-hidden rounded-lg bg-white shadow-lg transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-2xl">
@@ -42,4 +38,3 @@ export const AssetCard: FC<AssetCardProps> = ({ asset }) => {
     </div>
   );
 };
-

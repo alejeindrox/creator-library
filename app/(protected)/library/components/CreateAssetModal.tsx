@@ -22,7 +22,7 @@ export const CreateAssetModal: FC<CreateAssetModalProps> = ({ onClose }) => {
         )}
         <button
           type="submit"
-          className="mt-4 w-full rounded-md bg-blue-600 p-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="mt-4 w-full rounded-md bg-blue-600 p-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
         >
           Create Asset
         </button>

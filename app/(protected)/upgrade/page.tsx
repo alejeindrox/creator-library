@@ -13,11 +13,11 @@ const UpgradePage: FC = async () => {
     <div className="min-h-screen bg-slate-50">
       <div className="p-4 sm:p-6 lg:p-8">
         <UpgradeHeader />
-        <main className="flex justify-center max-w-3xl mx-auto">
+        <main className="mx-auto flex max-w-3xl justify-center">
           <PricingGrid userPlan={userPlan} />
         </main>
-        <div className="text-center mt-8">
-          <Link href="/library" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+        <div className="mt-8 text-center">
+          <Link href="/library" className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600">
             Back to Library
           </Link>
         </div>
