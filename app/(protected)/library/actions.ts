@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { getSessionUser, clearSessionCookie } from '@/lib/auth.server';
-import { assetRepository } from '@/lib/adapters/prisma-adapter';
+import { assetRepository, userRepository } from '@/lib/adapters/prisma-adapter';
 import { CreateAssetSchema } from '@/lib/schemas/asset-schema';
 import type { CreateAssetFormState, AssetWithFavorite } from './types';
 
@@ -51,6 +51,13 @@ export const createAssetAction = async (
 
   if (!user) {
     return { message: 'Unauthenticated user.', success: false };
+  }
+
+  if (user.plan === 'basic') {
+    const assetCount = await userRepository.countAssets(user.id);
+    if (assetCount >= 5) {
+      redirect('/upgrade');
+    }
   }
 
   const validatedFields = await CreateAssetSchema.safeParseAsync({
