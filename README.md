@@ -25,7 +25,16 @@ Este proyecto es una aplicación web para gestionar una biblioteca de activos di
 
 Sigue estos pasos para levantar la aplicación en tu máquina.
 
-### 1\. Instalación de dependencias
+### 1\. Clonar el repositorio
+
+Abre tu terminal y ejecuta el siguiente comando para clonar el repositorio del proyecto y overte al proyecto.
+
+```bash
+git clone https://github.com/alejeindrox/creator-library
+cd <NOMBRE_DE_TU_CARPETA> # Por defecto es creator-library
+```
+
+### 2\. Instalación de dependencias
 
 Abre tu terminal en la carpeta del proyecto y ejecuta tu gestor de paquetes preferido.
 
@@ -37,7 +46,7 @@ yarn install
 pnpm install
 ```
 
-### 2\. Configuración del entorno
+### 3\. Configuración del entorno
 
 Antes de instalar las dependencias, copia el archivo de ejemplo de las variables de entorno para que tu aplicación pueda acceder a las configuraciones necesarias, como la URL de la base de datos.
 
@@ -45,7 +54,7 @@ Antes de instalar las dependencias, copia el archivo de ejemplo de las variables
 cp .env.example .env
 ```
 
-### 3\. Configuración y migración de la base de datos
+### 4\. Configuración y migración de la base de datos
 
 El proyecto utiliza **Prisma** con **SQLite**. Para configurar la base de datos y agregar algunos datos iniciales, ejecuta los siguientes scripts:
 
@@ -56,7 +65,7 @@ npm run db:seed
 
 El primer comando migra el esquema de la base de datos, y el segundo la puebla con usuarios de prueba y algunos assets de ejemplo.
 
-### 4\. Iniciar el servidor de desarrollo
+### 5\. Iniciar el servidor de desarrollo
 
 Ya estás listo para correr la aplicación.
 
