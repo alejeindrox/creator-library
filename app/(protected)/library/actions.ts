@@ -7,28 +7,50 @@ import { getSessionUser, clearSessionCookie } from '@/lib/auth.server';
 import { assetRepository, userRepository } from '@/lib/adapters/prisma-adapter';
 import { CreateAssetSchema } from '@/lib/schemas/asset-schema';
 import type { CreateAssetFormState, AssetWithFavorite } from './types';
+import type { Asset, Favorite, User } from '@/lib/domain/types';
 
-export const getLibraryAssets = async (): Promise<AssetWithFavorite[]> => {
+const ensureAuthenticatedUser = async () => {
   const user = await getSessionUser();
-
   if (!user) {
     await clearSessionCookie();
     redirect('/login');
   }
+  return user;
+};
 
-  const [assets, favorites] = await Promise.all([
-    assetRepository.findAllForUser(user.id),
-    assetRepository.findAllFavoritesForUser(user.id),
-  ]);
+const fetchUserAssetsAndFavorites = async (userId: string) => {
+  return Promise.all([assetRepository.findAllForUser(userId), assetRepository.findAllFavoritesForUser(userId)]);
+};
 
+const mapAssetsWithFavoriteStatus = (assets: Asset[], favorites: Favorite[]): AssetWithFavorite[] => {
   const favoriteAssetIds = new Set(favorites.map((fav) => fav.assetId));
-
-  const assetsWithFavorite: AssetWithFavorite[] = assets.map((asset) => ({
+  return assets.map((asset) => ({
     ...asset,
     isFavorite: favoriteAssetIds.has(asset.id),
   }));
+};
 
-  return assetsWithFavorite;
+const sortAssetsByFavoriteAndDate = (assets: AssetWithFavorite[]): AssetWithFavorite[] => {
+  const sortedAssets = [...assets];
+  sortedAssets.sort((a, b) => {
+    if (a.isFavorite && !b.isFavorite) {
+      return -1;
+    }
+    if (!a.isFavorite && b.isFavorite) {
+      return 1;
+    }
+
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
+  return sortedAssets;
+};
+
+export const getLibraryAssets = async (): Promise<AssetWithFavorite[]> => {
+  const user = await ensureAuthenticatedUser();
+  const [assets, favorites] = await fetchUserAssetsAndFavorites(user.id);
+  const assetsWithFavorite = mapAssetsWithFavoriteStatus(assets, favorites);
+  const sortedAssets = sortAssetsByFavoriteAndDate(assetsWithFavorite);
+  return sortedAssets;
 };
 
 export const toggleFavoriteAction = async (assetId: string) => {
@@ -39,43 +61,40 @@ export const toggleFavoriteAction = async (assetId: string) => {
   }
 
   await assetRepository.toggleFavorite({ userId: user.id, assetId });
-
   revalidatePath('/library');
 };
 
-export const createAssetAction = async (
-  prevState: CreateAssetFormState,
-  formData: FormData
-): Promise<CreateAssetFormState> => {
-  const user = await getSessionUser();
-
-  if (!user) {
-    return { message: 'Unauthenticated user.', success: false };
-  }
-
+const checkPlanLimit = async (user: User) => {
   if (user.plan === 'basic') {
     const assetCount = await userRepository.countAssets(user.id);
     if (assetCount >= 5) {
       redirect('/upgrade');
     }
   }
+};
 
+const validateAssetData = async (formData: FormData) => {
   const validatedFields = await CreateAssetSchema.safeParseAsync({
     title: formData.get('title'),
     url: formData.get('url'),
   });
 
   if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Validation error.',
-      success: false,
-    };
+    throw new Error('Validation error.');
   }
 
-  const { title, url } = validatedFields.data;
+  return validatedFields.data;
+};
+
+export const createAssetAction = async (
+  prevState: CreateAssetFormState,
+  formData: FormData,
+): Promise<CreateAssetFormState> => {
+  const user = await ensureAuthenticatedUser();
+  await checkPlanLimit(user);
 
   try {
+    const { title, url } = await validateAssetData(formData);
     await assetRepository.create({ userId: user.id, title, url });
     revalidatePath('/library');
     return { message: 'Asset created successfully.', success: true };
