@@ -15,7 +15,7 @@ Este proyecto es una aplicación web para gestionar una biblioteca de activos di
 
 ### Demo y Recursos Adicionales
 
-  * **Ver la demo:** Puedes ver la aplicación en vivo en [Demo]().
+  * **Ver la demo:** Puedes ver la aplicación en vivo en [Demo Vercel](https://creator-library.vercel.app/).
   * **Video del proyecto:** Un breve recorrido por la aplicación está disponible en [Video Jam](https://jam.dev/c/ef4772b8-dafe-4ea9-973c-dcaf0261c709).
   * **Seguimiento de features:** El estado de las funcionalidades del proyecto (activos, en desarrollo, o deprecadas) se puede seguir en [Historial de Features](https://www.notion.so/vibepeak-26957f00378f80bb9366fe0a7b665330?source=copy_link).
 
