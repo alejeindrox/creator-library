@@ -12,7 +12,7 @@
     "db:generate": "prisma generate --schema prisma/schema.prisma",
     "db:seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/seed.ts",
     "postinstall": "npx prisma generate",
-    "postbuild": "npx prisma migrate deploy && npx prisma db seed"
+    "postbuild": "npx prisma migrate deploy --schema prisma/schema.vercel.prisma && npx prisma db seed --schema prisma/schema.vercel.prisma"
   },
   "prisma": {
     "seed": "ts-node scripts/seed.ts"
