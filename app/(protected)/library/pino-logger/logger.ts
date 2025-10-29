@@ -1,12 +1,9 @@
 import pino from 'pino'
-import { createRequire } from 'module';
 import type { LokiOptions } from 'pino-loki'
-
-const require = createRequire(import.meta.url);
-require('pino-loki');
+import pinoLoki from '@/pino-loki-esm';
 
 const transport = pino.transport<LokiOptions>({
-  target: 'pino-loki',
+  target: pinoLoki,
   options: {
     host: 'https://logs-prod-012.grafana.net',
     basicAuth: {
