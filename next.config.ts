@@ -1,16 +1,6 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals = [
-        ...config.externals,
-        'pino',
-        'pino-loki',
-      ];
-    }
-    return config;
-  },
   images: {
     remotePatterns: [
       {
@@ -19,7 +9,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  serverExternalPackages: ['pino', 'pino-loki'],
+  serverExternalPackages: ['pino'],
 };
 
 export default nextConfig;
