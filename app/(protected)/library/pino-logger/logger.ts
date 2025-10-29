@@ -89,7 +89,7 @@ const logger = pino(baseLoggerConfig, standardDestination);
 
 // Si estamos en producción, sobrescribimos la función 'write' del logger.
 if (process.env.NODE_ENV === 'production') {
-  const originalWrite = (logger as unknown).write.bind(logger);
+  const originalWrite = (logger as any).write.bind(logger);
 
   (logger as any).write = function (chunk: string) {
     // 1. Escribir primero el log al destino estándar (Vercel Console/stdout)
