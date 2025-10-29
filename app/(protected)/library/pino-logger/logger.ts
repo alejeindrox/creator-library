@@ -96,6 +96,7 @@ const baseLoggerConfig: LoggerOptions = {
 };
 
 let loggerInstance: pino.Logger;
+console.log(process.env.NODE_ENV);
 
 if (process.env.NODE_ENV === 'production') {
   // Producción: escribir a stdout y enviar a Loki
