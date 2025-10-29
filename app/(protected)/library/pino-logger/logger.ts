@@ -96,28 +96,37 @@ if (process.env.NODE_ENV === 'production') {
   // Producción: escribir a stdout y enviar a Loki
   loggerInstance = pino(baseLoggerConfig);
 
-  const originalWrite = (loggerInstance as any).write.bind(loggerInstance);
+  // Obtener el destino interno (stream real de pino)
+  const destination: any = (loggerInstance as any).destination || (loggerInstance as any).stream;
 
-  (loggerInstance as any).write = function (chunk: string) {
-    // 1. Escribir siempre al destino estándar
-    originalWrite(chunk);
+  if (destination && typeof destination.write === 'function') {
+    const originalWrite = destination.write.bind(destination);
 
-    // 2. Intentar parsear y enviar a Loki sin bloquear
-    try {
-      const log = JSON.parse(chunk);
-      enqueueLog(log);
-    } catch {
-      // Ignorar errores silenciosamente (no hacer console.error)
-    }
-  };
+    destination.write = (chunk: string) => {
+      // 1. Escribir normalmente al destino estándar
+      originalWrite(chunk);
+
+      // 2. Enviar a Loki de forma asíncrona
+      try {
+        const log = JSON.parse(chunk);
+        enqueueLog(log);
+      } catch {
+        // Ignorar silenciosamente errores de parseo
+      }
+    };
+  } else {
+    // fallback: si no hay stream, usar un noop (útil en builds o edge)
+    loggerInstance.info('Logger iniciado sin stream de destino (modo build o edge).');
+  }
 } else {
-  // Desarrollo: usar pino-pretty para salida coloreada
+  // Desarrollo: usar pino-pretty
   const devTransport = pino.transport({
     target: 'pino-pretty',
     options: { destination: 1, colorize: true },
   });
   loggerInstance = pino(baseLoggerConfig, devTransport);
 }
+
 
 // ==========================================================
 // ✅ EXPORTACIÓN
