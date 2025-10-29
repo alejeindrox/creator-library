@@ -1,45 +1,53 @@
-// logger.ts (Código modificado)
-import pino, { LoggerOptions, DestinationStream } from 'pino';
+import pino, { LoggerOptions } from 'pino';
 
-// Define el endpoint de Loki
+// ==========================================================
+// 🔧 CONFIGURACIÓN BÁSICA
+// ==========================================================
 const LOKI_HOST = 'https://logs-prod-012.grafana.net';
 const LOKI_PUSH_ENDPOINT = `${LOKI_HOST}/loki/api/v1/push`;
 
-// NOTA IMPORTANTE: process.env.LOKI_USERNAME puede ser undefined durante la compilación.
-// Lo inicializaremos solo cuando se use para evitar errores de tipo si no existen.
 const LOKI_USERNAME = process.env.LOKI_USERNAME;
 const LOKI_PASSWORD = process.env.LOKI_PASSWORD;
 
-// Etiquetas base
 const BASE_LABELS = {
   service: 'test-app',
   environment: 'development',
 };
 
-// --- 1. Función de Envío a Loki (Mantenemos el cuerpo igual) ---
+// ==========================================================
+// 🚀 BÚFER Y ENVÍO EN BATCH A LOKI
+// ==========================================================
+const logBuffer: any[] = [];
+let flushTimer: NodeJS.Timeout | null = null;
+const MAX_BUFFER = 10; // número máximo de logs antes de forzar envío
+const FLUSH_INTERVAL = 2000; // ms
 
-async function sendLogToLoki(log: any) {
-  if (!LOKI_USERNAME || !LOKI_PASSWORD) {
-    console.error('LOKI_USERNAME o LOKI_PASSWORD no están configuradas. Saltando envío a Loki.');
-    return;
+function scheduleFlush() {
+  if (!flushTimer) {
+    flushTimer = setTimeout(flushLogsToLoki, FLUSH_INTERVAL);
   }
+}
+
+async function flushLogsToLoki() {
+  const toSend = logBuffer.splice(0, logBuffer.length);
+  flushTimer = null;
+
+  if (toSend.length === 0) return;
+  if (!LOKI_USERNAME || !LOKI_PASSWORD) return;
 
   try {
-    const nanoseconds = `${log.time}000000`;
-    const logLine = JSON.stringify(log);
-
     const payload = {
       streams: [
         {
           stream: BASE_LABELS,
-          values: [[nanoseconds, logLine]],
+          values: toSend.map((log) => [`${log.time}000000`, JSON.stringify(log)]),
         },
       ],
     };
 
     const basicAuth = Buffer.from(`${LOKI_USERNAME}:${LOKI_PASSWORD}`).toString('base64');
 
-    const response = await fetch(LOKI_PUSH_ENDPOINT, {
+    const res = await fetch(LOKI_PUSH_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -49,20 +57,34 @@ async function sendLogToLoki(log: any) {
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Loki Error (${response.status}): ${errorText.substring(0, 200)}`);
+    if (!res.ok) {
+      // Evitar usar console.error para prevenir loops
+      const errText = await res.text();
+      process.stdout.write(`Loki error ${res.status}: ${errText.substring(0, 150)}\n`);
     }
-  } catch (error) {
-    console.error('Error de red/runtime al enviar a Loki:', error);
+  } catch (err) {
+    process.stdout.write(`Error enviando batch a Loki: ${(err as Error).message}\n`);
   }
 }
 
-// --- 2. Inicialización del Logger ---
+// ==========================================================
+// 🧩 FUNCIÓN PARA ENCOLAR LOGS
+// ==========================================================
+function enqueueLog(log: any) {
+  logBuffer.push(log);
+  if (logBuffer.length >= MAX_BUFFER) {
+    flushLogsToLoki().catch(() => {});
+  } else {
+    scheduleFlush();
+  }
+}
 
+// ==========================================================
+// 🪵 CONFIGURACIÓN DEL LOGGER PINO
+// ==========================================================
 const baseLoggerConfig: LoggerOptions = {
   base: BASE_LABELS,
-  level: 'debug',
+  level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
   formatters: {
     level: (label, number) => ({ level: number, severity: label.toUpperCase() }),
   },
@@ -71,37 +93,33 @@ const baseLoggerConfig: LoggerOptions = {
 let loggerInstance: pino.Logger;
 
 if (process.env.NODE_ENV === 'production') {
-  // 💡 SOLUCIÓN CLAVE: Inicializar Pino SIN un transport
-  // Pino por defecto escribe a process.stdout, que tiene el método .write
+  // Producción: escribir a stdout y enviar a Loki
   loggerInstance = pino(baseLoggerConfig);
-} else {
-  // En desarrollo, usamos pino-pretty
-  const devDestination = pino.transport({
-    target: 'pino-pretty',
-    options: { destination: 1, colorize: true },
-  });
-  loggerInstance = pino(baseLoggerConfig, devDestination);
-}
 
-// --- 3. Implementación del Hook de Escritura (Solo si es producción) ---
-
-if (process.env.NODE_ENV === 'production') {
-  // Aquí, loggerInstance está inicializado con el stream base de Pino,
-  // que garantiza que el método .write exista.
   const originalWrite = (loggerInstance as any).write.bind(loggerInstance);
 
   (loggerInstance as any).write = function (chunk: string) {
-    // 1. Escribir primero el log al destino estándar (Vercel Console/stdout)
+    // 1. Escribir siempre al destino estándar
     originalWrite(chunk);
 
-    // 2. Interceptar y enviar a Loki
+    // 2. Intentar parsear y enviar a Loki sin bloquear
     try {
       const log = JSON.parse(chunk);
-      sendLogToLoki(log).catch(() => {});
-    } catch (e) {
-      console.error('Fallo al parsear log en el hook de Loki:', e);
+      enqueueLog(log);
+    } catch {
+      // Ignorar errores silenciosamente (no hacer console.error)
     }
   };
+} else {
+  // Desarrollo: usar pino-pretty para salida coloreada
+  const devTransport = pino.transport({
+    target: 'pino-pretty',
+    options: { destination: 1, colorize: true },
+  });
+  loggerInstance = pino(baseLoggerConfig, devTransport);
 }
 
+// ==========================================================
+// ✅ EXPORTACIÓN
+// ==========================================================
 export default loggerInstance;
