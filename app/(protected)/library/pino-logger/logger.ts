@@ -1,9 +1,8 @@
 import pino from 'pino'
 import type { LokiOptions } from 'pino-loki'
-import pinoLoki from '@/pino-loki-esm';
 
 const transport = pino.transport<LokiOptions>({
-  target: pinoLoki,
+  target: 'pino-loki',
   options: {
     host: 'https://logs-prod-012.grafana.net',
     basicAuth: {
