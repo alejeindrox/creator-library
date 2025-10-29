@@ -1,5 +1,9 @@
 import pino from 'pino'
+import { createRequire } from 'module';
 import type { LokiOptions } from 'pino-loki'
+
+const require = createRequire(import.meta.url);
+require('pino-loki');
 
 const transport = pino.transport<LokiOptions>({
   target: 'pino-loki',
