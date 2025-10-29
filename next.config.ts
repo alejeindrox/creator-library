@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    serverComponentsExternalPackages: ['pino', 'pino-loki'],
+  },
 };
 
 export default nextConfig;

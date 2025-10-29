@@ -8,6 +8,7 @@ import { assetRepository, userRepository } from '@/lib/adapters/prisma-adapter';
 import { CreateAssetSchema } from '@/lib/schemas/asset-schema';
 import type { CreateAssetFormState, AssetWithFavorite } from './types';
 import type { Asset, Favorite, User } from '@/lib/domain/types';
+import { logWithContext } from './pino-logger/logWithContext';
 
 const ensureAuthenticatedUser = async () => {
   const user = await getSessionUser();
@@ -54,7 +55,18 @@ export const getLibraryAssets = async (): Promise<AssetWithFavorite[]> => {
 };
 
 export const toggleFavoriteAction = async (assetId: string) => {
+  const log = await logWithContext({
+    action: 'test_action',
+    entity: 'test_entity',
+    metadata: { assetId },
+  });
   const user = await getSessionUser();
+  log.debug({ debug: true}, 'Debug message');
+  log.info({ info: true}, 'Info message');
+  log.warn({ warn: true}, 'Warning message');
+  log.error({ error: true}, 'Error message');
+  log.fatal({ fatal: true}, 'Fatal message');
+
 
   if (!user) {
     throw new Error('Invalid user.');
