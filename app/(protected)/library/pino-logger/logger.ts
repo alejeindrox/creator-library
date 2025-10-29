@@ -23,6 +23,8 @@ const MAX_BUFFER = 10; // número máximo de logs antes de forzar envío
 const FLUSH_INTERVAL = 2000; // ms
 
 function scheduleFlush() {
+
+  process.stdout.write(`VEMOS QUE si manda el fetch ${flushTimer}`);
   if (!flushTimer) {
     flushTimer = setTimeout(flushLogsToLoki, FLUSH_INTERVAL);
   }
@@ -47,6 +49,7 @@ async function flushLogsToLoki() {
 
     const basicAuth = Buffer.from(`${LOKI_USERNAME}:${LOKI_PASSWORD}`).toString('base64');
 
+    process.stdout.write('AQUI lanza a LOKI');
     const res = await fetch(LOKI_PUSH_ENDPOINT, {
       method: 'POST',
       headers: {
@@ -56,6 +59,8 @@ async function flushLogsToLoki() {
       },
       body: JSON.stringify(payload),
     });
+    const result = await res.text();
+    process.stdout.write(result);
 
     if (!res.ok) {
       // Evitar usar console.error para prevenir loops
