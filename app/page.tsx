@@ -1,6 +1,17 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 export default function HomePage() {
+
+  useEffect(() => {
+    fetch('/api/geo')
+      .then((res) => res.json())
+      .then((data) => console.log(data))
+      .catch((err) => console.log('Country fetch failed', err));
+  }, []);
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-900">
       <div className="mx-auto max-w-md rounded-lg bg-white p-8 text-center shadow-xl">
